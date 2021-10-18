@@ -4,9 +4,9 @@
 //  </copyright>
 // -------------------------------------------------------------------------------------
 
-using Customer.Api.Client.Configuration;
-
 namespace Test.ApiGateway.UI.Infrastructure;
+
+using SharedLibrary.Api.Client.Configuration;
 
 /// <summary>
 /// Defines the configuration/settings.

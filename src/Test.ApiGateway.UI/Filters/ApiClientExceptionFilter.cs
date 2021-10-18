@@ -7,11 +7,12 @@
 namespace Test.ApiGateway.UI.Filters;
 
 using System.Net;
-using Customer.Api.Client.Exceptions;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
 using Newtonsoft.Json;
+using SharedLibrary.Api.Client.Exceptions;
 using SharedLibrary.Models.Models.Error;
+using SharedLibrary.Models.Models.Validation;
 
 /// <summary>
 /// Exception filter to intercept <see cref="ApiClientException"/>
@@ -47,12 +48,21 @@ public class ApiClientExceptionFilter : IAsyncExceptionFilter
 
             switch (apiClientException.HttpStatusCode)
             {
-                case HttpStatusCode.NotFound:
                 case HttpStatusCode.BadRequest:
-                case HttpStatusCode.InternalServerError:
-                    var response = JsonConvert.DeserializeObject<ErrorResponse>(responseString);
+                    var validationResponse = JsonConvert.DeserializeObject<ValidationResponse>(responseString);
 
-                    context.Result = new ObjectResult(response)
+                    context.Result = new ObjectResult(validationResponse)
+                    {
+                        StatusCode = (int)apiClientException.HttpStatusCode
+                    };
+
+                    break;
+
+                case HttpStatusCode.NotFound:
+                case HttpStatusCode.InternalServerError:
+                    var errorResponse = JsonConvert.DeserializeObject<ErrorResponse>(responseString);
+
+                    context.Result = new ObjectResult(errorResponse)
                     {
                         StatusCode = (int)apiClientException.HttpStatusCode
                     };
@@ -60,17 +70,17 @@ public class ApiClientExceptionFilter : IAsyncExceptionFilter
                     break;
 
                 default:
-                    var errorResponse = new ErrorResponse
+                    var anotherResponse = new ErrorResponse
                     {
                         StatusCode = (int)apiClientException.HttpStatusCode
                     };
 
-                    errorResponse.Details.Add(new ErrorDetail
+                    anotherResponse.Details.Add(new ErrorDetail
                     {
                         Message = "An error occurred, please try again later."
                     });
 
-                    context.Result = new ObjectResult(errorResponse)
+                    context.Result = new ObjectResult(anotherResponse)
                     {
                         StatusCode = (int)apiClientException.HttpStatusCode
                     };

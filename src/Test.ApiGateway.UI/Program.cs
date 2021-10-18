@@ -6,9 +6,15 @@
 
 using System.Reflection;
 using System.Text.Json.Serialization;
+using App.Metrics.AspNetCore;
+using App.Metrics.Formatters.Prometheus;
 using Customer.Api.Client;
+using Microsoft.AspNetCore.Server.Kestrel.Core;
+using Policy.Api.Client;
 using Serilog;
+using SharedLibrary.Api.Extensions;
 using SharedLibrary.Filters.Filters;
+using Test.ApiGateway.UI.Extensions;
 using Test.ApiGateway.UI.Filters;
 using Test.ApiGateway.UI.Infrastructure;
 
@@ -23,6 +29,17 @@ Log.Information("Starting up");
 
 builder.Host.UseSerilog();
 
+builder.Host.UseMetricsWebTracking()
+    .UseMetrics(options =>
+    {
+        options.EndpointOptions = endpointsOptions =>
+        {
+            endpointsOptions.MetricsTextEndpointOutputFormatter = new MetricsPrometheusTextOutputFormatter();
+            endpointsOptions.MetricsEndpointOutputFormatter = new MetricsPrometheusProtobufOutputFormatter();
+            endpointsOptions.EnvironmentInfoEndpointEnabled = false;
+        };
+    });
+
 builder.WebHost.UseKestrel(options =>
 {
     options.AddServerHeader = false;
@@ -30,6 +47,13 @@ builder.WebHost.UseKestrel(options =>
 
 // Add services to the container.
 var services = builder.Services;
+
+services.Configure<KestrelServerOptions>(options =>
+{
+    options.AllowSynchronousIO = true;
+});
+
+services.AddMetrics();
 
 services.AddControllers(options =>
     {
@@ -61,6 +85,9 @@ services.AddSwaggerGen(c =>
 var appSettings = builder.Configuration.Get<AppSettings>();
 
 services.AddCustomerHttpClient(appSettings.HttpClientSettingsDictionary);
+services.AddPolicyHttpClient(appSettings.HttpClientSettingsDictionary);
+
+services.AddApiHealthChecks();
 
 var app = builder.Build();
 
@@ -70,6 +97,10 @@ if (app.Environment.IsDevelopment())
     app.UseSwagger();
     app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "Test.ApiGateway.UI v1"));
 }
+
+app.UseRouting();
+
+app.UseApiHealthChecks();
 
 app.UseHttpsRedirection();
 
