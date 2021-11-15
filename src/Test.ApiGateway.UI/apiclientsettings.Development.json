@@ -1,0 +1,33 @@
+{
+  "HttpClientSettingsDictionary": {
+    "ICustomerApiClient": {
+      "BaseUrl": "https://localhost:5001/",
+      "RequestHeaders": {
+        "Header-Test-001": "Testing Header"
+      },
+      "CircuitBreaker": {
+        "Enabled": false,
+        "BreakDurationInSeconds": 10,
+        "EventsBeforeBreak": 3
+      },
+      "Retry": {
+        "Enabled": false,
+        "JitterEnabled": true,
+        "MaxJitterInMiliseconds": 50,
+        "NumberOfRetries": 3,
+        "RetriesBackoff": "Linear",
+        "SleepDurationInMiliseconds": 100
+      },
+      "Timeout": {
+        "Enabled": false,
+        "TimeoutInSeconds": 2
+      }
+    },
+    "IPolicyApiClient": {
+      "BaseUrl": "https://localhost:5101/",
+      "RequestHeaders": {
+        "Header-Test-001": "Testing Header"
+      }
+    }
+  }
+}

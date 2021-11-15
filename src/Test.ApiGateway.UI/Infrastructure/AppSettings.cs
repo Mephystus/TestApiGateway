@@ -7,6 +7,7 @@
 namespace Test.ApiGateway.UI.Infrastructure;
 
 using SharedLibrary.Api.Client.Configuration;
+using Test.ApiGateway.UI.Security;
 
 /// <summary>
 /// Defines the configuration/settings.
@@ -17,4 +18,9 @@ public class AppSettings
     /// Gets or sets the HTTP client settings.
     /// </summary>
     public Dictionary<string, HttpClientSettings> HttpClientSettingsDictionary { get; set; } = new Dictionary<string, HttpClientSettings>();
+
+    /// <summary>
+    /// Gets or sets the Authentication settings.
+    /// </summary>
+    public AuthConfiguration AuthConfiguration { get; set; } = default!;
 }

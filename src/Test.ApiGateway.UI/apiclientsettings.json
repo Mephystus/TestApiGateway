@@ -1,0 +1,10 @@
+{
+  "HttpClientSettingsDictionary": {
+    "ICustomerApiClient": {
+      "BaseUrl": "https://customer.api/"
+    },
+    "IPolicyApiClient": {
+      "BaseUrl": "https://policy.api/"
+    }
+  }
+}

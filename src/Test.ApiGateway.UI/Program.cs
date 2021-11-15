@@ -4,14 +4,19 @@
 //  </copyright>
 // -------------------------------------------------------------------------------------
 
-using System.Reflection;
 using System.Text.Json.Serialization;
 using App.Metrics.AspNetCore;
 using App.Metrics.Formatters.Prometheus;
+using AspNetCoreRateLimit;
 using Customer.Api.Client;
+using Customer.Api.Client.Implementations;
+using Customer.Api.Client.Interfaces;
 using Microsoft.AspNetCore.Server.Kestrel.Core;
 using Policy.Api.Client;
+using Policy.Api.Client.Implementations;
+using Policy.Api.Client.Interfaces;
 using Serilog;
+using SharedLibrary.Api.Client.Extensions;
 using SharedLibrary.Api.Extensions;
 using SharedLibrary.Filters.Filters;
 using Test.ApiGateway.UI.Extensions;
@@ -43,6 +48,13 @@ builder.Host.UseMetricsWebTracking()
 builder.WebHost.UseKestrel(options =>
 {
     options.AddServerHeader = false;
+}).ConfigureAppConfiguration((hosting, config) =>
+{
+    var env = hosting.HostingEnvironment.EnvironmentName;
+    config.AddJsonFile($"apiclientsettings.json");
+    config.AddJsonFile($"apiclientsettings.{env}.json");
+    config.AddJsonFile($"ratelimitsettings.json");
+    config.AddJsonFile($"ratelimitsettings.{env}.json");
 });
 
 // Add services to the container.
@@ -54,6 +66,8 @@ services.Configure<KestrelServerOptions>(options =>
 });
 
 services.AddMetrics();
+
+services.AddRateLimiting(builder.Configuration);
 
 services.AddControllers(options =>
     {
@@ -73,21 +87,18 @@ services.AddControllers(options =>
 
 builder.Services.AddRouting(options => options.LowercaseUrls = true);
 
-services.AddSwaggerGen(c =>
-{
-    c.SwaggerDoc("v1", new() { Title = "Test.ApiGateway.UI", Version = "v1" });
-    var xmlFile = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
-    var xmlPath = Path.Combine(AppContext.BaseDirectory, xmlFile);
-    c.IncludeXmlComments(xmlPath);
-    c.EnableAnnotations();
-});
-
 var appSettings = builder.Configuration.Get<AppSettings>();
 
-services.AddCustomerHttpClient(appSettings.HttpClientSettingsDictionary);
-services.AddPolicyHttpClient(appSettings.HttpClientSettingsDictionary);
+services.AddAuthentication(appSettings.AuthConfiguration);
 
-services.AddApiHealthChecks();
+services.AddSwagger();
+
+services.AddSingleton<IRateLimitConfiguration, RateLimitConfiguration>();
+
+services.AddHttpClient<ICustomerApiClient, CustomerApiClient>(appSettings.HttpClientSettingsDictionary, nameof(ICustomerApiClient));
+services.AddHttpClient<IPolicyApiClient, PolicyApiClient>(appSettings.HttpClientSettingsDictionary, nameof(IPolicyApiClient));
+
+services.AddApiGatewayHealthChecks();
 
 var app = builder.Build();
 
@@ -98,11 +109,15 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "Test.ApiGateway.UI v1"));
 }
 
-app.UseRouting();
+app.UseIpRateLimiting();
 
 app.UseApiHealthChecks();
 
 app.UseHttpsRedirection();
+
+app.UseRouting();
+
+app.UseAuthentication();
 
 app.UseAuthorization();
 

@@ -8,6 +8,7 @@ namespace Test.ApiGateway.UI.Controllers;
 
 using Customer.Api.Client.Interfaces;
 using Customer.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Policy.Api.Client.Interfaces;
@@ -153,5 +154,17 @@ public class CustomersController : ControllerBase
         };
 
         return Ok(response);
+    }
+
+    [Authorize]
+    [HttpGet("secure")]
+    public async Task<IActionResult> SecureResourceAsync() 
+    {
+        await Task.Delay(100);
+
+        return Ok(new
+        {
+            date = DateTime.Now
+        });
     }
 }

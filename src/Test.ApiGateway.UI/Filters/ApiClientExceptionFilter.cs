@@ -75,7 +75,7 @@ public class ApiClientExceptionFilter : IAsyncExceptionFilter
                         StatusCode = (int)apiClientException.HttpStatusCode
                     };
 
-                    anotherResponse.Details.Add(new ErrorDetail
+                    anotherResponse.Details.Add(new ErrorResponseDetail
                     {
                         Message = "An error occurred, please try again later."
                     });

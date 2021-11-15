@@ -12,17 +12,20 @@
   <ItemGroup>
     <PackageReference Include="App.Metrics.AspNetCore.Mvc" Version="4.3.0-preview.0.34" />
     <PackageReference Include="App.Metrics.Formatters.Prometheus" Version="4.3.0-preview.0.34" />
-    <PackageReference Include="Customer.Api.Client" Version="1.1.1" />
+    <PackageReference Include="AspNetCoreRateLimit" Version="4.0.1" />
+    <PackageReference Include="AspNetCoreRateLimit.Redis" Version="1.0.0" />
+    <PackageReference Include="Customer.Api.Client" Version="1.1.3" />
     <PackageReference Include="Customer.Models" Version="1.1.1" />
+    <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="6.0.0-rc.2.21480.10" />
     <PackageReference Include="Microsoft.VisualStudio.Azure.Containers.Tools.Targets" Version="1.14.0" />
     <PackageReference Include="Policy.Api.Client" Version="1.1.1" />
     <PackageReference Include="Policy.Models" Version="1.1.1" />
     <PackageReference Include="Serilog.AspNetCore" Version="4.1.1-dev-00229" />
     <PackageReference Include="Serilog.Sinks.Console" Version="4.0.1-dev-00876" />
-    <PackageReference Include="SharedLibrary.Api" Version="1.1.2" />
-    <PackageReference Include="SharedLibrary.Api.Client" Version="1.1.2" />
-    <PackageReference Include="SharedLibrary.Filters" Version="1.1.2" />
-    <PackageReference Include="SharedLibrary.Models" Version="1.1.2" />
+    <PackageReference Include="SharedLibrary.Api" Version="1.1.4" />
+    <PackageReference Include="SharedLibrary.Api.Client" Version="1.1.4" />
+    <PackageReference Include="SharedLibrary.Filters" Version="1.1.4" />
+    <PackageReference Include="SharedLibrary.Models" Version="1.1.4" />
     <PackageReference Include="Swashbuckle.AspNetCore" Version="6.2.3" />
     <PackageReference Include="Swashbuckle.AspNetCore.Annotations" Version="6.2.3" />
   </ItemGroup>
